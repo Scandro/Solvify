@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solvify</title>
+    <link rel="icon" type="image/x-icon" href=".\logo.png">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <style>
+        :root {
+            --dark-blue: #001530;
+            --deeper-blue: #000c1c;
+            --accent-yellow: #ffd630;
+            --light-blue: #00a0e4;
+            --white: #ffffff;
+            --light-gray: #f5f5f7;
+            --gray: #8a8a8a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        body {
+            background-color: var(--dark-blue);
+            color: var(--white);
+            line-height: 1.5;
+        }
+        
+        header {
+            background-color: var(--deeper-blue);
+            padding: 1.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--white);
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo-icon {
+            color: var(--accent-yellow);
+            margin-right: 0.5rem;
+            font-size: 1.75rem;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+        
+        .split-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: calc(100vh - 5rem);
+        }
+        
+        @media (max-width: 768px) {
+            .split-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .visual-section {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem;
+        }
+        
+        .content-section {
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .wave-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+        
+        .yellow-circle {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            background-color: var(--accent-yellow);
+            border-radius: 50%;
+            z-index: 1;
+            box-shadow: 0 5px 30px rgba(255, 214, 48, 0.4);
+        }
+        
+        .page-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
+        
+        .page-subtitle {
+            font-size: 1.5rem;
+            color: var(--gray);
+            margin-bottom: 2rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            background-color: var(--light-blue);
+            color: var(--white);
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            background-color: var(--accent-yellow);
+            color: var(--dark-blue);
+        }
+        
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--white);
+            border: 1px solid var(--white);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--white);
+            color: var(--dark-blue);
+        }
+        
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .file-upload {
+            width: 100%;
+            text-align: center;
+        }
+        
+        .file-input-wrapper {
+            margin: 2rem 0;
+        }
+        
+        .file-input-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .file-input-label:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-yellow);
+        }
+        
+        .file-icon {
+            font-size: 48px;
+            color: var(--accent-yellow);
+            margin-bottom: 1rem;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .search-bar {
+            margin: 2rem 0;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: none;
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            font-size: 1rem;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .problems-container {
+            margin-bottom: 3rem;
+        }
+        
+        .problem-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .problem-card {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        
+        .problem-card:hover {
+            transform: translateY(-5px);
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .problem-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .problem-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .problem-status {
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+            text-transform: uppercase;
+        }
+        
+        .status-new {
+            background-color: var(--light-blue);
+            color: var(--white);
+        }
+        
+        .status-ongoing {
+            background-color: #f59e0b;
+            color: var(--white);
+        }
+        
+        .status-better {
+            background-color: #10b981;
+            color: var(--white);
+        }
+        
+        .status-worse {
+            background-color: #ef4444;
+            color: var(--white);
+        }
+        
+        .status-reopened {
+            background-color: #8b5cf6;
+            color: var(--white);
+        }
+        
+        .problem-description {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+        
+        .problem-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal {
+            background-color: var(--dark-blue);
+            border-radius: 8px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .modal-title {
+            font-size: 1.75rem;
+            font-weight: 600;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.5);
+            transition: color 0.2s;
+        }
+        
+        .modal-close:hover {
+            color: var(--white);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--white);
+        }
+        
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--accent-yellow);
+        }
+        
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .problem-updates {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .problem-updates-header {
+            margin-bottom: 1.5rem;
+        }
+        
+        .problem-updates-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .update-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .update-card {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 1rem;
+        }
+        
+        .update-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        
+        .update-date {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .update-sentiment {
+            font-size: 0.75rem;
+            font-weight: 500;
+            padding: 0.25rem 0.75rem;
+            border-radius: 100px;
+            text-transform: uppercase;
+        }
+        
+        .sentiment-good {
+            background-color: #10b981;
+            color: var(--white);
+        }
+        
+        .sentiment-bad {
+            background-color: #ef4444;
+            color: var(--white);
+        }
+        
+        .update-content {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .update-form {
+            margin-top: 2rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 1.5rem;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .empty-icon {
+            font-size: 4rem;
+            color: var(--accent-yellow);
+            margin-bottom: 1.5rem;
+        }
+        
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .empty-description {
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 2rem;
+            max-width: 500px;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        @keyframes wave {
+            0% { transform: translateX(0) translateY(0); }
+            50% { transform: translateX(-5px) translateY(5px); }
+            100% { transform: translateX(0) translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .visual-section {
+                padding: 2rem 1rem;
+            }
+            
+            .content-section {
+                padding: 2rem 1rem;
+            }
+            
+            .page-title {
+                font-size: 2.25rem;
+            }
+            
+            .yellow-circle {
+                width: 150px;
+                height: 150px;
+            }
+            
+            .problem-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-buttons {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header id="app-header">
+        <div class="header-content">
+            <div class="logo">
+                <span class="logo-icon">●</span> Solvify
+            </div>
+            <div class="nav-buttons">
+                <button id="add-problem-btn" class="btn">Add Problem</button>
+                <button id="export-csv-btn" class="btn btn-secondary">Export CSV</button>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Welcome Screen / File Upload -->
+        <div id="welcome-screen" class="split-container">
+            <div class="visual-section">
+                <div class="wave-bg">
+                    <svg width="100%" height="100%" viewBox="0 0 400 400" preserveAspectRatio="none">
+                        <path d="M0,100 C150,200 250,0 400,100 L400,400 L0,400 Z" fill="rgba(255,255,255,0.03)"></path>
+                        <path d="M0,150 C150,250 250,50 400,150 L400,400 L0,400 Z" fill="rgba(255,255,255,0.02)" style="animation: wave 15s ease-in-out infinite;"></path>
+                        <path d="M0,200 C150,300 250,100 400,200 L400,400 L0,400 Z" fill="rgba(255,255,255,0.01)" style="animation: wave 18s ease-in-out infinite;"></path>
+                    </svg>
+                </div>
+                <div class="yellow-circle"></div>
+            </div>
+            <div class="content-section">
+                <h1 class="page-title">Track & Solve Your Problems</h1>
+                <p class="page-subtitle">Upload your data or start fresh with a new problem.</p>
+                
+                <div class="file-upload">
+                    <div class="file-input-wrapper">
+                        <label class="file-input-label" for="file-upload">
+                            <div class="file-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                            </div>
+                            <p>Drop your CSV file here or click to browse</p>
+                        </label>
+                        <input id="file-upload" class="file-input" type="file" accept=".csv">
+                    </div>
+                    <button id="new-problem-btn" class="btn">Start with a new problem</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main App Content -->
+        <div id="app-content" class="hidden">
+            <div class="search-bar">
+                <span class="search-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </span>
+                <input id="search-input" type="text" class="search-input" placeholder="Search problems...">
+            </div>
+            
+            <div class="problems-container">
+                <div id="problem-list" class="problem-list">
+                    <!-- Problems will be loaded here -->
+                </div>
+                
+                <!-- Empty State -->
+                <div id="empty-state" class="empty-state hidden">
+                    <div class="empty-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="64" height="64" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                        </svg>
+                    </div>
+                    <h2 class="empty-title">No problems found</h2>
+                    <p id="empty-state-description" class="empty-description">
+                        You haven't added any problems yet. Click the 'Add Problem' button to get started.
+                    </p>
+                    <button id="empty-add-problem-btn" class="btn">Add Problem</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Problem Modal -->
+    <div id="problem-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="problem-modal-title" class="modal-title"></h2>
+                <button id="problem-modal-close" class="modal-close">&times;</button>
+            </div>
+            <div id="problem-modal-header" class="problem-header">
+                <span id="problem-modal-status" class="problem-status"></span>
+                <button id="problem-modal-edit-btn" class="btn btn-sm">
+                    <span style="display: flex; align-items: center; gap: 0.5rem;">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20h9"></path>
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                        </svg>
+                        Edit Problem
+                    </span>
+                </button>
+            </div>
+            <p id="problem-modal-description" class="problem-description" style="margin-top: 1rem;"></p>
+            
+            <div class="problem-updates">
+                <div class="problem-updates-header">
+                    <h3 class="problem-updates-title">Updates</h3>
+                </div>
+                
+                <div id="problem-modal-updates" class="update-list">
+                    <!-- Updates will be loaded here -->
+                </div>
+                
+                <form id="update-form" class="update-form">
+                    <div class="form-group">
+                        <label class="form-label" for="update-content">Add a new update</label>
+                        <textarea id="update-content" class="form-textarea" placeholder="What's the latest on this problem?" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Update type</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="sentiment" value="good" checked> Good update
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="sentiment" value="bad"> Bad update
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn">Add Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Problem Form Modal -->
+    <div id="problem-form-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="problem-form-title" class="modal-title">Add New Problem</h2>
+                <button id="problem-form-close" class="modal-close">&times;</button>
+            </div>
+            
+            <form id="problem-form">
+                <div class="form-group">
+                    <label class="form-label" for="problem-title">Title</label>
+                    <input id="problem-title" class="form-input" type="text" placeholder="Brief title of your problem" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="problem-description">Description</label>
+                    <textarea id="problem-description" class="form-textarea" placeholder="Describe your problem in detail" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="problem-state">Current State</label>
+                    <select id="problem-state" class="form-select" required>
+                        <option value="New Problem">New Problem</option>
+                        <option value="Ongoing">Ongoing</option>
+                        <option value="Getting Better">Getting Better</option>
+                        <option value="Getting Worse">Getting Worse</option>
+                        <option value="Reopened">Reopened</option>
+                    </select>
+                </div>
+                
+                <input type="hidden" id="problem-id">
+                
+                <div class="form-actions">
+                    <button type="button" id="problem-form-cancel" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn">Save Problem</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Main app state
+        const appState = {
+            problems: [],
+            selectedProblem: null,
+            isEditing: false,
+            searchQuery: ''
+        };
+
+        // DOM Elements
+        const elements = {
+            welcomeScreen: document.getElementById('welcome-screen'),
+            fileUpload: document.getElementById('file-upload'),
+            newProblemBtn: document.getElementById('new-problem-btn'),
+            appHeader: document.getElementById('app-header'),
+            appContent: document.getElementById('app-content'),
+            problemList: document.getElementById('problem-list'),
+            emptyState: document.getElementById('empty-state'),
+            emptyStateDescription: document.getElementById('empty-state-description'),
+            emptyAddProblemBtn: document.getElementById('empty-add-problem-btn'),
+            addProblemBtn: document.getElementById('add-problem-btn'),
+            exportCsvBtn: document.getElementById('export-csv-btn'),
+            searchInput: document.getElementById('search-input'),
+            
+            // Problem Modal
+            problemModal: document.getElementById('problem-modal'),
+            problemModalTitle: document.getElementById('problem-modal-title'),
+            problemModalClose: document.getElementById('problem-modal-close'),
+            problemModalStatus: document.getElementById('problem-modal-status'),
+            problemModalDescription: document.getElementById('problem-modal-description'),
+            problemModalEditBtn: document.getElementById('problem-modal-edit-btn'),
+            problemModalUpdates: document.getElementById('problem-modal-updates'),
+            updateForm: document.getElementById('update-form'),
+            updateContent: document.getElementById('update-content'),
+            
+            // Problem Form Modal
+            problemFormModal: document.getElementById('problem-form-modal'),
+            problemFormTitle: document.getElementById('problem-form-title'),
+            problemFormClose: document.getElementById('problem-form-close'),
+            problemForm: document.getElementById('problem-form'),
+            problemTitleInput: document.getElementById('problem-title'),
+            problemDescriptionInput: document.getElementById('problem-description'),
+            problemStateInput: document.getElementById('problem-state'),
+            problemIdInput: document.getElementById('problem-id'),
+            problemFormCancel: document.getElementById('problem-form-cancel')
+        };
+        
+        // Helper Functions
+        const formatDate = (dateString) => {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        };
+        
+        const getCurrentDate = () => {
+            const now = new Date();
+            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        };
+        
+        const getStatusClass = (status) => {
+            switch (status.toLowerCase()) {
+                case 'new problem': return 'status-new';
+                case 'ongoing': return 'status-ongoing';
+                case 'getting better': return 'status-better';
+                case 'getting worse': return 'status-worse';
+                case 'reopened': return 'status-reopened';
+                default: return 'status-new';
+            }
+        };
+        
+        const showElement = (element) => {
+            element.classList.remove('hidden');
+        };
+        
+        const hideElement = (element) => {
+            element.classList.add('hidden');
+        };
+        
+        // Render Functions
+        const renderProblemCard = (problem) => {
+            const card = document.createElement('div');
+            card.className = 'problem-card';
+            card.dataset.id = problem.id;
+            
+            card.innerHTML = `
+                <div class="problem-header">
+                    <h3 class="problem-title">${problem.title}</h3>
+                    <span class="problem-status ${getStatusClass(problem.state)}">${problem.state}</span>
+                </div>
+                <p class="problem-description">${problem.description}</p>
+                <div class="problem-footer">
+                    <span class="problem-update-count">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.5rem;">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        ${problem.updates ? problem.updates.length : 0} updates
+                    </span>
+                    <span class="problem-last-updated">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.5rem;">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        ${formatDate(problem.lastUpdated)}
+                    </span>
+                </div>
+            `;
+            
+            card.addEventListener('click', () => openProblemModal(problem));
+            
+            return card;
+        };
+        
+        const renderUpdateCard = (update) => {
+            const card = document.createElement('div');
+            card.className = 'update-card';
+            
+            card.innerHTML = `
+                <div class="update-header">
+                    <span class="update-date">${formatDate(update.date)}</span>
+                    <span class="update-sentiment sentiment-${update.sentiment}">${update.sentiment}</span>
+                </div>
+                <p class="update-content">${update.content}</p>
+            `;
+            
+            return card;
+        };
+        
+        const renderProblemList = () => {
+            elements.problemList.innerHTML = '';
+            
+            const filteredProblems = appState.problems.filter(problem => {
+                const query = appState.searchQuery.toLowerCase();
+                return (
+                    problem.title.toLowerCase().includes(query) ||
+                    problem.description.toLowerCase().includes(query) ||
+                    problem.state.toLowerCase().includes(query)
+                );
+            });
+            
+            if (filteredProblems.length === 0) {
+                hideElement(elements.problemList);
+                showElement(elements.emptyState);
+                
+                if (appState.problems.length === 0) {
+                    elements.emptyStateDescription.textContent = "You haven't added any problems yet. Click the 'Add Problem' button to get started.";
+                    showElement(elements.emptyAddProblemBtn);
+                } else {
+                    elements.emptyStateDescription.textContent = "No problems match your search criteria. Try a different search term.";
+                    hideElement(elements.emptyAddProblemBtn);
+                }
+            } else {
+                showElement(elements.problemList);
+                hideElement(elements.emptyState);
+                
+                filteredProblems.forEach(problem => {
+                    elements.problemList.appendChild(renderProblemCard(problem));
+                });
+            }
+        };
+        
+        // Modal Functions
+        const openProblemModal = (problem) => {
+            appState.selectedProblem = problem;
+            
+            elements.problemModalTitle.textContent = problem.title;
+            elements.problemModalStatus.textContent = problem.state;
+            elements.problemModalStatus.className = `problem-status ${getStatusClass(problem.state)}`;
+            elements.problemModalDescription.textContent = problem.description;
+            
+            // Render updates
+            elements.problemModalUpdates.innerHTML = '';
+            if (problem.updates && problem.updates.length > 0) {
+                [...problem.updates].reverse().forEach(update => {
+                    elements.problemModalUpdates.appendChild(renderUpdateCard(update));
+                });
+            } else {
+                elements.problemModalUpdates.innerHTML = '<p>No updates yet.</p>';
+            }
+            
+            showElement(elements.problemModal);
+        };
+        
+        const closeProblemModal = () => {
+            hideElement(elements.problemModal);
+            appState.selectedProblem = null;
+            elements.updateForm.reset();
+        };
+        
+        const openProblemFormModal = (problem = null) => {
+            appState.isEditing = !!problem;
+            
+            if (problem) {
+                elements.problemFormTitle.textContent = 'Edit Problem';
+                elements.problemTitleInput.value = problem.title;
+                elements.problemDescriptionInput.value = problem.description;
+                elements.problemStateInput.value = problem.state;
+                elements.problemIdInput.value = problem.id;
+            } else {
+                elements.problemFormTitle.textContent = 'Add New Problem';
+                elements.problemForm.reset();
+                elements.problemIdInput.value = Date.now().toString();
+            }
+            
+            showElement(elements.problemFormModal);
+        };
+        
+        const closeProblemFormModal = () => {
+            hideElement(elements.problemFormModal);
+            elements.problemForm.reset();
+        };
+        
+        // Data Functions
+        const handleFileUpload = (file) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const contents = e.target.result;
+                Papa.parse(contents, {
+                    header: true,
+                    dynamicTyping: true,
+                    complete: (results) => {
+                        // Transform data to convert string-encoded updates to actual arrays
+                        const parsedProblems = results.data
+                            .filter(problem => problem.id) // Filter out empty rows
+                            .map(problem => {
+                                let updates = [];
+                                
+                                // Parse updates if they exist
+                                if (problem.updates && typeof problem.updates === 'string') {
+                                    try {
+                                        updates = JSON.parse(problem.updates);
+                                    } catch (e) {
+                                        console.error('Error parsing updates:', e);
+                                    }
+                                }
+                                
+                                return {
+                                    ...problem,
+                                    updates
+                                };
+                            });
+                        
+                        appState.problems = parsedProblems;
+                        showAppContent();
+                        renderProblemList();
+                    },
+                    error: (error) => {
+                        console.error('Error parsing CSV:', error);
+                        alert('Error parsing CSV file. Please check the format.');
+                    }
+                });
+            };
+            reader.readAsText(file);
+        };
+        
+        const generateCSVForDownload = () => {
+            // Convert problems to CSV-friendly format
+            const csvProblems = appState.problems.map(problem => {
+                return {
+                    ...problem,
+                    updates: JSON.stringify(problem.updates || [])
+                };
+            });
+            
+            return Papa.unparse(csvProblems);
+        };
+        
+        const handleDownloadCSV = () => {
+            const csvData = generateCSVForDownload();
+            const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `solvify_data_${getCurrentDate()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+        
+        const addProblem = (problem) => {
+            if (!problem.id) {
+                problem.id = Date.now().toString();
+            }
+            
+            if (!problem.lastUpdated) {
+                problem.lastUpdated = getCurrentDate();
+            }
+            
+            if (!problem.updates) {
+                problem.updates = [];
+            }
+            
+            appState.problems.push(problem);
+            renderProblemList();
+        };
+        
+        const updateProblem = (updatedProblem) => {
+            appState.problems = appState.problems.map(p => 
+                p.id === updatedProblem.id ? updatedProblem : p
+            );
+            
+            renderProblemList();
+            
+            // If this is the currently selected problem, update the modal
+            if (appState.selectedProblem && appState.selectedProblem.id === updatedProblem.id) {
+                appState.selectedProblem = updatedProblem;
+                openProblemModal(updatedProblem);
+            }
+        };
+        
+        const addUpdate = (problemId, update) => {
+            const problem = appState.problems.find(p => p.id === problemId);
+            
+            if (problem) {
+                problem.updates = [...(problem.updates || []), update];
+                problem.lastUpdated = update.date;
+                
+                updateProblem(problem);
+            }
+        };
+        
+        // UI State Functions
+        const showAppContent = () => {
+            hideElement(elements.welcomeScreen);
+            showElement(elements.appContent);
+        };
+        
+        // Event Listeners
+        elements.fileUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleFileUpload(file);
+            }
+        });
+        
+        elements.newProblemBtn.addEventListener('click', () => {
+            appState.problems = [];
+            showAppContent();
+            openProblemFormModal();
+        });
+        
+        elements.addProblemBtn.addEventListener('click', () => {
+            openProblemFormModal();
+        });
+        
+        elements.emptyAddProblemBtn.addEventListener('click', () => {
+            openProblemFormModal();
+        });
+        
+        elements.exportCsvBtn.addEventListener('click', handleDownloadCSV);
+        
+        elements.searchInput.addEventListener('input', (e) => {
+            appState.searchQuery = e.target.value;
+            renderProblemList();
+        });
+        
+        elements.problemModalClose.addEventListener('click', closeProblemModal);
+        
+        elements.problemModal.addEventListener('click', (e) => {
+            if (e.target === elements.problemModal) {
+                closeProblemModal();
+            }
+        });
+        
+        elements.problemModalEditBtn.addEventListener('click', () => {
+            closeProblemModal();
+            openProblemFormModal(appState.selectedProblem);
+        });
+        
+        elements.updateForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            if (appState.selectedProblem) {
+                const content = elements.updateContent.value;
+                const sentiment = document.querySelector('input[name="sentiment"]:checked').value;
+                
+                addUpdate(appState.selectedProblem.id, {
+                    content,
+                    sentiment,
+                    date: getCurrentDate()
+                });
+                
+                elements.updateForm.reset();
+                document.querySelector('input[name="sentiment"][value="good"]').checked = true;
+            }
+        });
+        
+        elements.problemFormClose.addEventListener('click', closeProblemFormModal);
+        
+        elements.problemFormModal.addEventListener('click', (e) => {
+            if (e.target === elements.problemFormModal) {
+                closeProblemFormModal();
+            }
+        });
+        
+        elements.problemFormCancel.addEventListener('click', closeProblemFormModal);
+        
+        elements.problemForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const problem = {
+                id: elements.problemIdInput.value || Date.now().toString(),
+                title: elements.problemTitleInput.value,
+                description: elements.problemDescriptionInput.value,
+                state: elements.problemStateInput.value,
+                lastUpdated: getCurrentDate()
+            };
+            
+            if (appState.isEditing) {
+                // Preserve existing updates when editing
+                const existingProblem = appState.problems.find(p => p.id === problem.id);
+                if (existingProblem) {
+                    problem.updates = existingProblem.updates || [];
+                }
+                
+                updateProblem(problem);
+            } else {
+                problem.updates = [];
+                addProblem(problem);
+            }
+            
+            closeProblemFormModal();
+            showAppContent();
+        });
+    </script>
+</body>
+</html>
